@@ -18,7 +18,7 @@ const commercial={whatsapp:''};
 const filters=[...document.querySelectorAll('[data-filter]')];
 const catalogGroups=[...document.querySelectorAll('[data-category]')];
 const catalogCount=document.querySelector('[data-count]');
-filters.forEach(button=>button.addEventListener('click',()=>{const category=button.dataset.filter;filters.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));catalogGroups.forEach(group=>{group.hidden=category!=='all'&&group.dataset.category!==category;});catalogCount.textContent=category==='drink'?'Mostrando Hype Drink.':category==='gelato'?'Mostrando gelatos.':'Mostrando Hype Drink e gelatos.';}));
+filters.forEach(button=>button.addEventListener('click',()=>{const category=button.dataset.filter;filters.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));catalogGroups.forEach(group=>{group.hidden=category!=='all'&&group.dataset.category!==category;});catalogCount.textContent=category==='drink'?'Mostrando Hype Drink.':category==='gelato'?'Mostrando gelatos.':category==='mais'?'Mostrando Protein Complete e Reset+.':'Mostrando todo o cardápio.';}));
 const partnerForm=document.querySelector('#partner-form');
 const partnerResult=document.querySelector('#partner-result');
 const partnerMessage=document.querySelector('#partner-message');
@@ -46,3 +46,17 @@ let shown=0;const autoSwap=reduced.matches?0:setInterval(()=>{if(document.hidden
 
 // Close the menu when tapping outside it.
 document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)&&!toggle.contains(e.target))closeMenu();});
+
+// ---------- Pedido online ----------
+// Endereço do sistema de pedidos (ex.: https://pedir.hypefit.com.br). Vazio = os botões "Peça agora" ficam escondidos.
+const pedidos={url:''};
+(()=>{let base=pedidos.url;
+// prévia no Mac: ?pedidos=http://localhost:8787 (só aceita endereço local, para ninguém montar link para outro site)
+const teste=new URLSearchParams(location.search).get('pedidos');if(teste&&/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(teste))base=teste;
+if(!/^https?:\/\/[^\s"']+$/.test(base||''))return;base=base.replace(/\/$/,'');
+document.querySelectorAll('[data-pedir]').forEach(a=>{const id=a.dataset.pedir;a.href=id?`${base}/app/#add/${encodeURIComponent(id)}`:`${base}/app/`;});
+document.querySelectorAll('.so-pedido').forEach(e=>e.hidden=false);document.body.classList.add('pedido-on');
+// com o pedido online ligado, "Ver o cardápio" vira botão secundário e o "Seja sócio" sai da abertura (continua no topo)
+document.querySelectorAll('[data-vira-vidro]').forEach(a=>{a.classList.remove('solid-button');a.classList.add('glass-button');});
+document.querySelector('.hero-ctas a[href="#seja-socio"]')?.setAttribute('hidden','');
+})();
