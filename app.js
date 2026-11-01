@@ -62,4 +62,7 @@ document.querySelector('.hero-ctas a[href="#seja-socio"]')?.setAttribute('hidden
 })();
 
 // botões 'Ver os sabores' das seções de produto abrem o cardápio já no filtro
-document.querySelectorAll('[data-ver]').forEach(a=>a.addEventListener('click',()=>{const b=document.querySelector(`[data-filter="${a.dataset.ver}"]`);if(b)b.click();}));
+
+
+// cardápio por produto: tocar no sabor troca a foto e a frase do card
+document.querySelectorAll('.sabor-chip').forEach(c=>c.addEventListener('click',()=>{const card=c.closest('.item');card.querySelectorAll('.sabor-chip').forEach(x=>x.setAttribute('aria-pressed',String(x===c)));const img=card.querySelector('.item-img img');img.src=c.dataset.img;img.alt=c.dataset.alt;card.querySelector('.item-img').style.setProperty('--tint',c.dataset.tint);card.querySelector('.sabor-frase').textContent=c.dataset.frase;}));
