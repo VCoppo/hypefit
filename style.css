@@ -402,4 +402,6 @@ em{color:inherit}
 .prod-sec .gelato-img.prod-img-largo,.prod-sec .gelato-img.prod-img-largo.in{width:min(640px,92vw);transform:none}
 .prod-sec .fit-stats strong{font-size:clamp(20px,2.4vw,30px)}
 
+@media(max-width:600px){#cardapio .segmented{flex-wrap:wrap;justify-content:center;border-radius:24px}#cardapio .segmented button{padding:9px 12px;font-size:13px}}
+
 .nav{top:calc(22px + env(safe-area-inset-top,0px))}@media(max-width:600px){.nav{top:calc(14px + env(safe-area-inset-top,0px))}}
