@@ -60,3 +60,6 @@ document.querySelectorAll('.so-pedido').forEach(e=>e.hidden=false);document.body
 document.querySelectorAll('[data-vira-vidro]').forEach(a=>{a.classList.remove('solid-button');a.classList.add('glass-button');});
 document.querySelector('.hero-ctas a[href="#seja-socio"]')?.setAttribute('hidden','');
 })();
+
+// botões 'Ver os sabores' das seções de produto abrem o cardápio já no filtro
+document.querySelectorAll('[data-ver]').forEach(a=>a.addEventListener('click',()=>{const b=document.querySelector(`[data-filter="${a.dataset.ver}"]`);if(b)b.click();}));
