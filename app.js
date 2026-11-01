@@ -18,7 +18,7 @@ const commercial={whatsapp:''};
 const filters=[...document.querySelectorAll('[data-filter]')];
 const catalogGroups=[...document.querySelectorAll('[data-category]')];
 const catalogCount=document.querySelector('[data-count]');
-filters.forEach(button=>button.addEventListener('click',()=>{const category=button.dataset.filter;filters.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));catalogGroups.forEach(group=>{group.hidden=category!=='all'&&group.dataset.category!==category;});catalogCount.textContent=category==='drink'?'Mostrando Hype Drink.':category==='gelato'?'Mostrando gelatos.':category==='protein'?'Mostrando Protein Complete.':category==='reset'?'Mostrando Reset+.':'Mostrando todo o cardápio.';}));
+filters.forEach(button=>button.addEventListener('click',()=>{const category=button.dataset.filter;filters.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));catalogGroups.forEach(group=>{group.hidden=category!=='all'&&group.dataset.category!==category;});catalogCount.textContent=category==='drink'?'Mostrando Hype Drink.':category==='gelato'?'Mostrando gelatos.':category==='protein'?'Mostrando Shake Proteinado.':category==='reset'?'Mostrando Reset+.':'Mostrando todo o cardápio.';}));
 const partnerForm=document.querySelector('#partner-form');
 const partnerResult=document.querySelector('#partner-result');
 const partnerMessage=document.querySelector('#partner-message');
