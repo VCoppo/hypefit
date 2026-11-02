@@ -422,5 +422,6 @@ em{color:inherit}
  .sec-shake .gelato-copy{margin-top:44px}
  .sec-reset .gelato-copy{margin-top:56px}
 }
+.item-img{position:relative}.selo-tamanho{position:absolute;top:14px;left:14px;z-index:2;background:#b6f45f;color:#0b0d08;font-weight:800;font-size:15px;letter-spacing:.03em;padding:6px 12px;border-radius:999px;box-shadow:0 4px 14px #0007}
 
 .nav{top:calc(22px + env(safe-area-inset-top,0px))}@media(max-width:600px){.nav{top:calc(14px + env(safe-area-inset-top,0px))}}
