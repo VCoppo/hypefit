@@ -53,8 +53,10 @@ const pedidos={url:''};
 (()=>{let base=pedidos.url;
 // prévia no Mac: ?pedidos=http://localhost:8787 (só aceita endereço local, para ninguém montar link para outro site)
 const teste=new URLSearchParams(location.search).get('pedidos');if(teste&&/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(teste))base=teste;
+const U=window.HF_UNIDADE;if(U)base=location.origin;
 if(!/^https?:\/\/[^\s"']+$/.test(base||''))return;base=base.replace(/\/$/,'');
-document.querySelectorAll('[data-pedir]').forEach(a=>{const id=a.dataset.pedir;a.href=id?`${base}/app/#add/${encodeURIComponent(id)}`:`${base}/app/`;});
+const q=U?`?loja=${encodeURIComponent(U.id)}`:'';
+document.querySelectorAll('[data-pedir]').forEach(a=>{const id=a.dataset.pedir;a.href=id?`${base}/app/${q}#add/${encodeURIComponent(id)}`:`${base}/app/${q}`;});
 document.querySelectorAll('.so-pedido').forEach(e=>e.hidden=false);document.body.classList.add('pedido-on');
 // com o pedido online ligado, "Ver o cardápio" vira botão secundário e o "Seja sócio" sai da abertura (continua no topo)
 document.querySelectorAll('[data-vira-vidro]').forEach(a=>{a.classList.remove('solid-button');a.classList.add('glass-button');});
@@ -66,3 +68,46 @@ document.querySelector('.hero-ctas a[href="#seja-socio"]')?.setAttribute('hidden
 
 // cardápio por produto: tocar no sabor troca a foto e a frase do card
 document.querySelectorAll('.sabor-chip').forEach(c=>c.addEventListener('click',()=>{const card=c.closest('.item');card.querySelectorAll('.sabor-chip').forEach(x=>x.setAttribute('aria-pressed',String(x===c)));const img=card.querySelector('.item-img img');img.src=c.dataset.img;img.alt=c.dataset.alt;card.querySelector('.item-img').style.setProperty('--tint',c.dataset.tint);card.querySelector('.sabor-frase').textContent=c.dataset.frase;}));
+
+
+// ---------- Onde estamos: unidades de verdade ----------
+// Página de uma unidade (/<link>/site/): o servidor injeta window.HF_UNIDADE.
+// Site da rede: busca a lista de unidades no sistema de pedidos (só as com endereço e liberadas pelo master).
+(()=>{const API='https://hypefit-pedidos.fly.dev';
+const sec=document.getElementById('onde-estamos');if(!sec)return;
+const modelo=sec.querySelector('.where-card');if(!modelo)return;
+const DIAS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const h=t=>{const[a,b]=String(t).split(':');return `${+a}h${b==='00'?'':b}`;};
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const seta='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+const icones=[...modelo.querySelectorAll('.where-row > svg')].map(x=>x.outerHTML);
+function horas(u){
+  if(u.modo==='manual')return '<p>Abre e fecha pelo balcão. Veja se está aberta agora no app.</p>';
+  if(u.modo==='aberta')return '<p>Sempre aberta.</p>';
+  const g=[];(u.horarios||[]).forEach((x,d)=>{const t=x?`${h(x[0])} às ${h(x[1])}`:'Fechado';const ult=g[g.length-1];if(ult&&ult.t===t&&ult.fim===d-1)ult.fim=d;else g.push({ini:d,fim:d,t});});
+  // domingo vai para o fim da lista
+  g.sort((a,b)=>(a.ini||7)-(b.ini||7));
+  return '<dl class="hours">'+g.map(x=>`<dt>${x.ini===x.fim?DIAS[x.ini]:`${DIAS[x.ini]} a ${DIAS[x.fim].toLowerCase()}`}</dt><dd>${x.t}</dd>`).join('')+'</dl>';
+}
+function card(u,naRede){
+  const nome=/hypefit/i.test(u.nome)?u.nome:`Hypefit ${u.nome}`;
+  const mapa=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(u.endereco)}`;
+  const tel=u.whatsapp?u.whatsapp.replace(/^55(\d\d)(\d{4,5})(\d{4})$/,'($1) $2-$3'):'';
+  const linhas=[`<div class="where-row">${icones[0]||''}<div><h3>${esc(nome)}</h3><p>${esc(u.endereco)}</p><a class="text-link" href="${mapa}" target="_blank" rel="noopener noreferrer">Abrir no mapa ${seta}</a>${naRede?` <a class="text-link" href="${API}/${encodeURIComponent(u.slug)}/site/">Ver a unidade ${seta}</a>`:''}</div></div>`,
+    `<div class="where-row">${icones[1]||''}<div><h3>Horário</h3>${horas(u)}</div></div>`];
+  if(u.instagram)linhas.push(`<div class="where-row">${icones[2]||''}<div><h3>Instagram</h3><p>@${esc(u.instagram)}</p><a class="text-link" href="https://www.instagram.com/${encodeURIComponent(u.instagram)}/" target="_blank" rel="noopener noreferrer">Abrir no Instagram ${seta}</a></div></div>`);
+  if(u.whatsapp)linhas.push(`<div class="where-row">${icones[3]||''}<div><h3>WhatsApp</h3><p>${esc(tel)}</p><a class="text-link" href="https://wa.me/${u.whatsapp}?text=${encodeURIComponent('Olá! Vim pelo site da '+nome+'.')}" target="_blank" rel="noopener noreferrer">Chamar no WhatsApp ${seta}</a></div></div>`);
+  linhas.push(`<div class="where-row"><span></span><div><a class="solid-button" href="${API}/${encodeURIComponent(u.slug)}">Pedir pelo app</a></div></div>`);
+  const c=document.createElement('div');c.className='where-card glass-card';c.innerHTML=linhas.join('');return c;
+}
+function mostrar(lista,naRede){
+  const caixa=document.createElement('div');caixa.className='where-lista';
+  if(!lista.length){const p=document.createElement('p');p.className='lead';p.textContent='Novas unidades abrindo em breve.';caixa.append(p);}
+  lista.forEach(u=>caixa.append(card(u,naRede)));
+  modelo.replaceWith(caixa);
+}
+modelo.hidden=true; // nunca mostra os dados de exemplo
+const U=window.HF_UNIDADE;
+if(U){mostrar([U],false);const t=sec.querySelector('#where-title');if(t)t.innerHTML='Passa aqui e<br>pega o seu Hype.';return;}
+fetch(API+'/api/unidades').then(r=>r.ok?r.json():Promise.reject()).then(d=>mostrar(d.unidades||[],true)).catch(()=>mostrar([],true));
+})();

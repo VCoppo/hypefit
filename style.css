@@ -412,4 +412,6 @@ em{color:inherit}
 .sabor-chip[aria-pressed=true]{background:#f5f5f7;color:#0b0b0d;border-color:#f5f5f7}
 .sabor-chip:focus-visible{outline:2px solid #f5f5f7;outline-offset:2px}
 
+.where-lista{display:grid;gap:20px}.where-lista .solid-button{display:inline-flex;margin-top:4px}
+
 .nav{top:calc(22px + env(safe-area-inset-top,0px))}@media(max-width:600px){.nav{top:calc(14px + env(safe-area-inset-top,0px))}}
