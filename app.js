@@ -111,3 +111,24 @@ const U=window.HF_UNIDADE;
 if(U){mostrar([U],false);const t=sec.querySelector('#where-title');if(t)t.innerHTML='Passa aqui e<br>pega o seu Hype.';return;}
 fetch(API+'/api/unidades').then(r=>r.ok?r.json():Promise.reject()).then(d=>mostrar(d.unidades||[],true)).catch(()=>mostrar([],true));
 })();
+
+// ---------- Site de uma unidade: só o que ela vende ----------
+(()=>{const U=window.HF_UNIDADE;if(!U)return;
+// "Seja sócio" sai do topo no site da unidade (continua no menu e no fim da página)
+document.querySelectorAll('.partner-link, .nav a[href="#seja-socio"], .hero-ctas a[href="#seja-socio"]').forEach(a=>a.hidden=true);
+const norm=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+fetch('/api/config?loja='+encodeURIComponent(U.id)).then(r=>r.json()).then(c=>{
+  const it=c.cardapio||[];
+  const nomes={drink:it.filter(i=>i.categoria==='drink'),gelato:it.filter(i=>i.categoria==='gelato'),protein:it.filter(i=>i.grupo==='Shake Proteinado'),reset:it.filter(i=>i.grupo==='Reset+')};
+  document.querySelectorAll('#cardapio article[data-category]').forEach(art=>{
+    const lista=nomes[art.dataset.category];if(!lista)return;
+    if(!lista.length){art.hidden=true;return;}
+    const ok=new Set(lista.map(i=>norm(i.nome)));
+    const chips=[...art.querySelectorAll('.sabor-chip')];
+    if(art.dataset.category==='reset')return; // kit único
+    chips.forEach(ch=>{ch.hidden=!ok.has(norm(ch.textContent));});
+    const ativo=chips.find(ch=>ch.getAttribute('aria-pressed')==='true');
+    if(ativo&&ativo.hidden){const v=chips.find(ch=>!ch.hidden);if(v)v.click();}
+  });
+}).catch(()=>{});
+})();
