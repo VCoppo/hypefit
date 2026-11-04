@@ -22,7 +22,7 @@
     while (pos < novo.length && vistos < digitosAntes) { if (/\d/.test(novo[pos])) vistos++; pos++; }
     try { el.setSelectionRange(pos, pos); } catch {}
   };
-  const preparar = (el) => { if (el.dataset.telPronto) return; el.dataset.telPronto = '1'; el.setAttribute('inputmode', 'numeric'); el.setAttribute('maxlength', '15'); if (!el.placeholder) el.placeholder = '(27) 99999-9999'; if (el.value) el.value = formatar(el.value); };
+  const preparar = (el) => { if (el.dataset.telPronto) return; el.dataset.telPronto = '1'; el.setAttribute('inputmode', 'numeric'); el.removeAttribute('maxlength'); if (!el.placeholder) el.placeholder = '(27) 99999-9999'; if (el.value) el.value = formatar(el.value); };
   document.addEventListener('beforeinput', (e) => { const el = e.target; if (!el.matches?.(sel)) return; if (e.inputType === 'insertText' && e.data && /\D/.test(e.data) && !/^\+?55/.test(e.data)) e.preventDefault(); }, true);
   document.addEventListener('input', (e) => { if (e.target.matches?.(sel)) aplicar(e.target); }, true);
   document.addEventListener('focusin', (e) => { if (e.target.matches?.(sel)) preparar(e.target); }, true);
