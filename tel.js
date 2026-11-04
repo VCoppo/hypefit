@@ -23,7 +23,7 @@
     try { el.setSelectionRange(pos, pos); } catch {}
   };
   const preparar = (el) => { if (el.dataset.telPronto) return; el.dataset.telPronto = '1'; el.setAttribute('inputmode', 'numeric'); el.removeAttribute('maxlength'); if (!el.placeholder) el.placeholder = '(27) 99999-9999'; if (el.value) el.value = formatar(el.value); };
-  document.addEventListener('beforeinput', (e) => { const el = e.target; if (!el.matches?.(sel)) return; if (e.inputType === 'insertText' && e.data && /\D/.test(e.data) && !/^\+?55/.test(e.data)) e.preventDefault(); }, true);
+  document.addEventListener('beforeinput', (e) => { const el = e.target; if (!el.matches?.(sel)) return; if (e.inputType === 'insertText' && e.data?.length === 1 && /\D/.test(e.data)) e.preventDefault(); /* só tecla solta: sugestão do teclado com o número inteiro passa e é formatada */ }, true);
   document.addEventListener('input', (e) => { if (e.target.matches?.(sel)) aplicar(e.target); }, true);
   document.addEventListener('focusin', (e) => { if (e.target.matches?.(sel)) preparar(e.target); }, true);
   const varrer = () => document.querySelectorAll(sel).forEach(preparar);
