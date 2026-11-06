@@ -39,10 +39,18 @@ addEventListener('scroll',()=>{if(!pageFrame)pageFrame=requestAnimationFrame(pag
 
 // Hero color picker: swaps the cup photo and the glow behind it.
 const hero=document.querySelector('.hero');const cups=[...document.querySelectorAll('.hero-cup')];const swatches=[...document.querySelectorAll('[data-swatch]')];
-function pick(i){swatches.forEach((b,k)=>b.setAttribute('aria-pressed',String(k===i)));cups.forEach((c,k)=>c.classList.toggle('on',k===i));hero.style.setProperty('--glow',swatches[i].dataset.glow);const nm=document.querySelector('.cup-name');if(nm)nm.innerHTML=`<strong>${swatches[i].getAttribute('aria-label')}</strong>`;}
+// Só o primeiro copo vem no HTML. Os outros têm data-src e entram depois do load, ou na hora se a pessoa tocar na bolinha.
+function loadCup(i){const c=cups[i];if(c.dataset.src){c.src=c.dataset.src;c.removeAttribute('data-src');}return c.decode().catch(e=>{const s=c.getAttribute('src');if(s){c.dataset.src=s;c.removeAttribute('src');}throw e;});}
+const cupReady=i=>cups[i].complete&&cups[i].naturalWidth>0;
+let wanted=0,visible=0;
+// O copo só troca quando a foto nova está pronta, para nunca sobrar a tela vazia.
+function pick(i){wanted=i;swatches.forEach((b,k)=>b.setAttribute('aria-pressed',String(k===i)));hero.style.setProperty('--glow',swatches[i].dataset.glow);const nm=document.querySelector('.cup-name');if(nm)nm.innerHTML=`<strong>${swatches[i].getAttribute('aria-label')}</strong>`;loadCup(i).then(()=>{if(wanted!==i)return;visible=i;cups.forEach((c,k)=>c.classList.toggle('on',k===i));},()=>{if(wanted===i&&i!==visible)pick(visible);});}
 swatches.forEach((b,i)=>b.addEventListener('click',()=>{pick(i);clearInterval(autoSwap);}));
 // Cycle the colors on its own until the visitor picks one.
-let shown=0;const autoSwap=reduced.matches?0:setInterval(()=>{if(document.hidden)return;shown=(shown+1)%cups.length;pick(shown);},3200);
+let shown=0;const autoSwap=reduced.matches?0:setInterval(()=>{if(document.hidden)return;const next=cups.slice(1).map((_,d)=>(shown+d+1)%cups.length).find(k=>cupReady(k));if(next===undefined)return;shown=next;pick(next);},3200);
+const loadRest=()=>cups.slice(1).reduce((p,_,k)=>p.then(()=>loadCup(k+1)).catch(()=>{}),Promise.resolve());
+const whenIdle=window.requestIdleCallback||(f=>setTimeout(f,200));
+if(document.readyState==='complete')whenIdle(loadRest,{timeout:2000});else addEventListener('load',()=>whenIdle(loadRest,{timeout:2000}),{once:true});
 
 // Close the menu when tapping outside it.
 document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)&&!toggle.contains(e.target))closeMenu();});
@@ -54,10 +62,12 @@ const pedidos={url:''};
 // prévia no Mac: ?pedidos=http://localhost:8787 (só aceita endereço local, para ninguém montar link para outro site)
 const teste=new URLSearchParams(location.search).get('pedidos');if(teste&&/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(teste))base=teste;
 const U=window.HF_UNIDADE;if(U)base=location.origin;
-if(!/^https?:\/\/[^\s"']+$/.test(base||''))return;base=base.replace(/\/$/,'');
+// site geral: quem escolhe a unidade é a seção Onde estamos, então "Peça agora" só rola até ela
+const geral=!U&&!base;
+if(!geral&&!/^https?:\/\/[^\s"']+$/.test(base||''))return;base=(base||'').replace(/\/$/,'');
 const q=U?`?loja=${encodeURIComponent(U.id)}`:'';
-document.querySelectorAll('[data-pedir]').forEach(a=>{const id=a.dataset.pedir;a.href=id?`${base}/app/${q}#add/${encodeURIComponent(id)}`:`${base}/app/${q}`;});
-document.querySelectorAll('.so-pedido').forEach(e=>e.hidden=false);document.body.classList.add('pedido-on');
+document.querySelectorAll('[data-pedir]').forEach(a=>{const id=a.dataset.pedir;a.href=geral?'#onde-estamos':id?`${base}/app/${q}#add/${encodeURIComponent(id)}`:`${base}/app/${q}`;});
+document.querySelectorAll(geral?'a.so-pedido[data-pedir=""]':'.so-pedido').forEach(e=>e.hidden=false);document.body.classList.add('pedido-on');
 // com o pedido online ligado, "Ver o cardápio" vira botão secundário e o "Seja sócio" sai da abertura (continua no topo)
 document.querySelectorAll('[data-vira-vidro]').forEach(a=>{a.classList.remove('solid-button');a.classList.add('glass-button');});
 document.querySelector('.hero-ctas a[href="#seja-socio"]')?.setAttribute('hidden','');
@@ -73,7 +83,8 @@ document.querySelectorAll('.sabor-chip').forEach(c=>c.addEventListener('click',(
 // ---------- Onde estamos: unidades de verdade ----------
 // Página de uma unidade (/<link>/site/): o servidor injeta window.HF_UNIDADE.
 // Site da rede: busca a lista de unidades no sistema de pedidos (só as com endereço e liberadas pelo master).
-(()=>{const API='https://hypefit-pedidos.fly.dev';
+(()=>{const API=/^(hypefitbrasil\.com\.br|hypefit-pedidos\.fly\.dev)$/.test(location.hostname)?location.origin:'https://hypefit-pedidos.fly.dev'; // nos hosts do sistema, a própria origem; no GitHub Pages, o fly.dev
+
 const sec=document.getElementById('onde-estamos');if(!sec)return;
 const modelo=sec.querySelector('.where-card');if(!modelo)return;
 const DIAS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
