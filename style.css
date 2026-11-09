@@ -427,5 +427,27 @@ em{color:inherit}
 .item-img{position:relative}.selo-tamanho{position:absolute;top:14px;left:14px;z-index:2;background:#b6f45f;color:#0b0d08;font-weight:800;font-size:15px;letter-spacing:.03em;padding:6px 12px;border-radius:999px;box-shadow:0 4px 14px #0007}
 .combos-site{margin:0 auto 22px;padding:16px 20px;border-radius:22px;border:1px solid #b6f45f55;background:linear-gradient(135deg,#b6f45f1f,#ff3d9a14)}.combos-site strong{font-size:18px}.combos-site ul{list-style:none;padding:0;margin:8px 0;display:grid;gap:4px}.combos-site span{color:#b6f45f;font-weight:700}.combos-site small{color:var(--muted)}
 .combos-site strong{display:inline-flex;align-items:center;gap:8px}.combos-ico{width:17px;height:23px;flex:none;fill:#b6f45f}
+/* Vitrine dos sabores (09/11/2026): setas trocam o sabor, copos andam em fila e o fundo muda de cor */
+@property --c1{syntax:'<color>';inherits:true;initial-value:#7b1fd6}
+@property --c2{syntax:'<color>';inherits:true;initial-value:#e0142f}
+.flv{position:relative;overflow:hidden;padding:120px 0;transition:--c1 .8s ease,--c2 .8s ease;
+ background:linear-gradient(#000,transparent 14%,transparent 86%,#000),radial-gradient(70% 90% at 72% 55%,color-mix(in srgb,var(--c2) 70%,transparent),transparent 70%),radial-gradient(60% 80% at 20% 20%,color-mix(in srgb,var(--c1) 55%,transparent),transparent 70%),#000}
+.flv::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.18;mix-blend-mode:overlay;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.flv-in{position:relative;z-index:1;width:min(1180px,100% - 48px);margin-inline:auto;display:grid;grid-template-columns:minmax(300px,1fr) 1.5fr;align-items:center;gap:24px;min-height:620px}
+.flv-name{font-size:clamp(48px,6.4vw,88px);line-height:.95;letter-spacing:-.035em;margin:0 0 18px;font-weight:800}
+.flv-fruit{font-size:clamp(18px,1.7vw,22px);color:#ffffffd0;margin:0 0 40px}
+.flv-nav{display:flex;align-items:center;gap:14px}
+.flv-btn{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:#fff;border:1px solid #ffffff55;background:var(--glass-bg);box-shadow:var(--glass-shine);backdrop-filter:blur(14px);transition:transform .2s}
+.flv-btn:active{transform:scale(.94)}
+.flv-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.flv-count{margin-left:10px;font-size:14px;letter-spacing:.08em;color:#ffffffb0;font-variant-numeric:tabular-nums}
+.flv-track{position:relative;height:620px;touch-action:pan-y}
+.flv-cup{position:absolute;left:4%;bottom:0;height:100%;width:auto;transform-origin:50% 100%;cursor:pointer;
+ transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .8s,filter .8s;filter:drop-shadow(0 30px 40px #0008)}
+.flv-cup.on{cursor:default}
+@media(max-width:800px){.flv{padding:96px 0 72px}.flv-in{grid-template-columns:1fr;min-height:0;gap:8px;width:calc(100% - 32px)}
+ .flv-copy{order:2;text-align:center}.flv-nav{justify-content:center}.flv-fruit{margin-bottom:28px}
+ .flv-track{order:1;height:430px}.flv-cup{left:6%}}
+@media(prefers-reduced-motion:reduce){.flv,.flv-cup{transition:none}}
 
 .nav{top:calc(22px + env(safe-area-inset-top,0px))}@media(max-width:600px){.nav{top:calc(14px + env(safe-area-inset-top,0px))}}

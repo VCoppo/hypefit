@@ -143,3 +143,18 @@ fetch('/api/config?loja='+encodeURIComponent(U.id)).then(r=>r.json()).then(c=>{
   });
 }).catch(()=>{});
 })();
+// Vitrine dos sabores: copos em fila diagonal; a seta (ou arrastar) passa o sabor e o fundo muda de cor
+(()=>{const sec=document.querySelector('.flv');if(!sec)return;const cups=[...sec.querySelectorAll('.flv-cup')],n=cups.length;let i=0;
+const nome=sec.querySelector('.flv-name'),fruta=sec.querySelector('.flv-fruit'),cont=sec.querySelector('.flv-count');
+const pos=[[0,0,1,0,1],[52,6,.74,9,1],[92,13,.56,16,1],[-60,0,.9,-8,0]];
+function show(k){i=(k+n)%n;const c=cups[i];
+ cups.forEach((el,j)=>{const o=(j-i+n)%n,[x,y,s,r,op]=pos[o];el.style.transform=`translate(${x}%,${-y}%) scale(${s}) rotate(${r}deg)`;el.style.opacity=op;el.style.zIndex=10-o;el.classList.toggle('on',o===0);el.style.filter=o?'drop-shadow(0 30px 40px #0008) brightness(.8)':'';});
+ sec.style.setProperty('--c1',c.dataset.c1);sec.style.setProperty('--c2',c.dataset.c2);
+ nome.innerHTML=c.dataset.n;fruta.textContent=c.dataset.f;cont.textContent=`0${i+1} / 0${n}`;}
+sec.querySelectorAll('[data-flv]').forEach(b=>b.addEventListener('click',()=>show(i+Number(b.dataset.flv))));
+cups.forEach((c,j)=>c.addEventListener('click',()=>{if(j!==i)show(j);}));
+let x0=null;const tr=sec.querySelector('.flv-track');
+tr.addEventListener('pointerdown',e=>{x0=e.clientX;});
+tr.addEventListener('pointerup',e=>{if(x0===null)return;const d=e.clientX-x0;x0=null;if(Math.abs(d)>40)show(i+(d<0?1:-1));});
+sec.addEventListener('keydown',e=>{if(e.key==='ArrowRight')show(i+1);if(e.key==='ArrowLeft')show(i-1);});
+show(0);})();
